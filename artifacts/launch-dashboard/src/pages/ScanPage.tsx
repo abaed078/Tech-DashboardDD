@@ -3,6 +3,7 @@ import { ScanLine, AlertTriangle, CheckCircle, Download, Zap } from "lucide-reac
 import { useLang } from "@/context/LanguageContext";
 import { PanelBox } from "@/components/PanelBox";
 import { exportToPdf } from "@/utils/exportPdf";
+import { AnatomyOverlay, AnatomyData } from "@/components/AnatomyOverlay";
 
 type ScanState = "idle" | "running" | "done_fault" | "done_clean";
 
@@ -18,12 +19,49 @@ interface DTC {
   desc_en: string;
   desc_ar: string;
   severity: "CRITICAL" | "HIGH" | "MEDIUM";
+  anatomy: AnatomyData;
 }
 
 const FAULT_DTCS: DTC[] = [
-  { code: "P0A80", system: "BMS", desc_en: "Replace Hybrid Battery Pack — cell imbalance detected", desc_ar: "استبدال حزمة بطارية الهجين — تم اكتشاف عدم توازن في الخلايا", severity: "CRITICAL" },
-  { code: "U0100", system: "CAN-Bus", desc_en: "Lost communication with ECM/PCM", desc_ar: "فُقد الاتصال بوحدة ECM/PCM", severity: "HIGH" },
-  { code: "C1201", system: "ABS/VSC", desc_en: "Engine control system malfunction", desc_ar: "خلل في نظام التحكم بالمحرك", severity: "MEDIUM" },
+  {
+    code: "P0A80", system: "BMS", severity: "CRITICAL",
+    desc_en: "Replace Hybrid Battery Pack — cell imbalance detected",
+    desc_ar: "استبدال حزمة بطارية الهجين — تم اكتشاف عدم توازن في الخلايا",
+    anatomy: {
+      id: "P0A80", sys: "BMS", volt: "N/A", temp: "N/A", category: "dtc",
+      name_en: "Hybrid Battery Pack Fault", name_ar: "عطل حزمة بطارية الهجين",
+      desc_en: "Cell voltage imbalance or degraded capacity detected in the high-voltage hybrid battery pack. Requires immediate inspection. Typically resolved by replacing the battery pack or individual modules. Check BMS wiring and connector integrity first.",
+      desc_ar: "تم اكتشاف عدم توازن في جهد الخلايا أو تراجع في سعة حزمة بطارية الجهد العالي الهجينة. يتطلب فحصاً فورياً. يُحل عادةً باستبدال حزمة البطارية أو وحدات فردية منها.",
+      logic_en: "Replace Hybrid Battery Pack — cell balance failure",
+      logic_ar: "استبدال حزمة بطارية الهجين — فشل في توازن خلايا البطارية",
+    },
+  },
+  {
+    code: "U0100", system: "CAN-Bus", severity: "HIGH",
+    desc_en: "Lost communication with ECM/PCM",
+    desc_ar: "فُقد الاتصال بوحدة ECM/PCM",
+    anatomy: {
+      id: "U0100", sys: "CAN-Bus", volt: "N/A", temp: "N/A", category: "dtc",
+      name_en: "Lost Comm with ECM/PCM", name_ar: "فُقد الاتصال مع ECM/PCM",
+      desc_en: "The CAN-Bus network has lost communication with the Engine/Powertrain Control Module. Inspect CAN-H and CAN-L wires for shorts, opens, or corrosion. Verify ECM power supply and ground circuits. Check the 120Ω termination resistors at bus endpoints.",
+      desc_ar: "فُقد الاتصال في شبكة CAN-Bus مع وحدة التحكم في المحرك/قطار القوى. افحص أسلاك CAN-H وCAN-L بحثاً عن قصر أو انفصال أو تآكل. تحقق من مقاومات الإنهاء 120Ω.",
+      logic_en: "Lost communication with ECM/PCM — check CAN wiring",
+      logic_ar: "فُقد الاتصال مع ECM/PCM — تحقق من أسلاك CAN",
+    },
+  },
+  {
+    code: "C1201", system: "ABS/VSC", severity: "MEDIUM",
+    desc_en: "Engine control system malfunction",
+    desc_ar: "خلل في نظام التحكم بالمحرك",
+    anatomy: {
+      id: "C1201", sys: "ABS/VSC", volt: "N/A", temp: "N/A", category: "dtc",
+      name_en: "ABS/VSC Engine Control Fault", name_ar: "عطل ABS/VSC في نظام التحكم بالمحرك",
+      desc_en: "The ABS/VSC system has detected a malfunction in the engine control interface. Often a secondary code caused by P0A80 or U0100. Resolve primary codes first and re-scan. If C1201 persists, inspect VSC sensor wiring and ABS module connector.",
+      desc_ar: "اكتشف نظام ABS/VSC خللاً في واجهة التحكم بالمحرك. غالباً ما يكون كوداً ثانوياً ناجماً عن P0A80 أو U0100. يُرجى حل الأكواد الرئيسية أولاً ثم إعادة الفحص.",
+      logic_en: "Engine control system malfunction — often secondary to P0A80/U0100",
+      logic_ar: "خلل في نظام التحكم بالمحرك — غالباً ثانوي لأكواد أخرى",
+    },
+  },
 ];
 
 const SCAN_STEPS_EN = [
@@ -61,6 +99,7 @@ export function ScanPage() {
   const [progress, setProgress] = useState(0);
   const [dtcs, setDtcs] = useState<DTC[]>([]);
   const [exporting, setExporting] = useState(false);
+  const [selectedDtc, setSelectedDtc] = useState<AnatomyData | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleExport = async () => {
@@ -270,22 +309,40 @@ export function ScanPage() {
                 <span style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>—</span>
               )}
               {dtcs.map((d, i) => (
-                <div key={i} style={{
-                  padding: "10px 12px",
-                  background: `${SEV_COLOR[d.severity]}0d`,
-                  border: `1px solid ${SEV_COLOR[d.severity]}44`,
-                  borderLeft: `3px solid ${SEV_COLOR[d.severity]}`,
-                  borderRadius: "6px",
-                }}>
+                <div
+                  key={i}
+                  onClick={() => setSelectedDtc(d.anatomy)}
+                  title={lang === "ar" ? "انقر لعرض التفاصيل" : "Click to inspect"}
+                  style={{
+                    padding: "10px 12px",
+                    background: `${SEV_COLOR[d.severity]}0d`,
+                    border: `1px solid ${SEV_COLOR[d.severity]}44`,
+                    borderLeft: `3px solid ${SEV_COLOR[d.severity]}`,
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    transition: "background 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = `${SEV_COLOR[d.severity]}18`;
+                    e.currentTarget.style.boxShadow = `0 0 12px ${SEV_COLOR[d.severity]}22`;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = `${SEV_COLOR[d.severity]}0d`;
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                     <span style={{ fontFamily: "Share Tech Mono, monospace", fontSize: "0.7rem", color: SEV_COLOR[d.severity], fontWeight: "700" }}>{d.code}</span>
-                    <div style={{ display: "flex", gap: "6px" }}>
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                       <span style={{ fontSize: "0.48rem", padding: "1px 6px", borderRadius: "3px", background: `${SEV_COLOR[d.severity]}18`, border: `1px solid ${SEV_COLOR[d.severity]}44`, color: SEV_COLOR[d.severity] }}>{d.severity}</span>
                       <span style={{ fontSize: "0.48rem", padding: "1px 6px", borderRadius: "3px", background: "rgba(0,242,255,0.08)", border: "1px solid rgba(0,242,255,0.2)", color: "var(--neon-blue)" }}>{d.system}</span>
                     </div>
                   </div>
-                  <div style={{ fontSize: "0.57rem", color: "var(--text-muted)", lineHeight: 1.5 }} data-i18n={`dtc_${d.code}`}>
+                  <div style={{ fontSize: "0.57rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
                     {lang === "ar" ? d.desc_ar : d.desc_en}
+                  </div>
+                  <div style={{ marginTop: "5px", fontSize: "0.48rem", color: `${SEV_COLOR[d.severity]}80`, letterSpacing: "0.08em" }}>
+                    {lang === "ar" ? "انقر لعرض التفاصيل ←" : "↗ CLICK TO INSPECT"}
                   </div>
                 </div>
               ))}
@@ -293,6 +350,9 @@ export function ScanPage() {
           </PanelBox>
         </div>
       </div>
+
+      {/* Anatomy overlay for DTC deep-dive */}
+      <AnatomyOverlay data={selectedDtc} onClose={() => setSelectedDtc(null)} />
     </div>
   );
 }
