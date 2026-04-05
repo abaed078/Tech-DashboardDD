@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { ScanLine, AlertTriangle, CheckCircle, Zap } from "lucide-react";
+import { ScanLine, AlertTriangle, CheckCircle, Download, Zap } from "lucide-react";
 import { useLang } from "@/context/LanguageContext";
 import { PanelBox } from "@/components/PanelBox";
+import { exportToPdf } from "@/utils/exportPdf";
 
 type ScanState = "idle" | "running" | "done_fault" | "done_clean";
 
@@ -59,7 +60,15 @@ export function ScanPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [progress, setProgress] = useState(0);
   const [dtcs, setDtcs] = useState<DTC[]>([]);
+  const [exporting, setExporting] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleExport = async () => {
+    setExporting(true);
+    const date = new Date().toISOString().slice(0, 10);
+    await exportToPdf("scan-export", `LaunchOPS_DiagnosticReport_${date}.pdf`);
+    setExporting(false);
+  };
 
   const STEPS = lang === "ar" ? SCAN_STEPS_AR : SCAN_STEPS_EN;
 
@@ -114,31 +123,63 @@ export function ScanPage() {
           </div>
         </div>
 
-        {/* Run button */}
-        <button
-          onClick={runDiagnostic}
-          disabled={scanState === "running"}
-          style={{
-            display: "flex", alignItems: "center", gap: "8px",
-            padding: "8px 18px",
-            background: scanState === "running" ? "rgba(230,0,18,0.05)" : "rgba(230,0,18,0.15)",
-            border: `1px solid ${scanState === "running" ? "rgba(230,0,18,0.3)" : "var(--launch-red)"}`,
-            borderRadius: "6px",
-            color: scanState === "running" ? "rgba(230,0,18,0.5)" : "var(--launch-red)",
-            cursor: scanState === "running" ? "not-allowed" : "pointer",
-            fontSize: isRTL ? "0.75rem" : "0.6rem",
-            letterSpacing: isRTL ? "0.02em" : "0.1em",
-            fontFamily: isRTL ? "Cairo, sans-serif" : "Orbitron, sans-serif",
-            boxShadow: scanState !== "running" ? "0 0 10px rgba(230,0,18,0.2)" : "none",
-            transition: "all 0.2s",
-          }}
-        >
-          <Zap size={13} />
-          <span data-i18n="scan_run">{t("scan_run")}</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Export button — only shown after a scan */}
+          {(scanState === "done_fault" || scanState === "done_clean") && (
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              title={lang === "ar" ? "تصدير تقرير PDF" : "Export PDF Report"}
+              style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "7px 14px",
+                background: exporting ? "rgba(0,242,255,0.05)" : "rgba(0,242,255,0.1)",
+                border: `1px solid ${exporting ? "rgba(0,242,255,0.2)" : "rgba(0,242,255,0.5)"}`,
+                borderRadius: "6px",
+                color: exporting ? "rgba(0,242,255,0.4)" : "var(--neon-blue)",
+                cursor: exporting ? "not-allowed" : "pointer",
+                fontSize: isRTL ? "0.65rem" : "0.58rem",
+                letterSpacing: isRTL ? "0.02em" : "0.08em",
+                fontFamily: isRTL ? "Cairo, sans-serif" : "Orbitron, sans-serif",
+                transition: "all 0.2s",
+                boxShadow: exporting ? "none" : "0 0 8px rgba(0,242,255,0.15)",
+              }}
+              onMouseEnter={e => { if (!exporting) e.currentTarget.style.background = "rgba(0,242,255,0.18)"; }}
+              onMouseLeave={e => { if (!exporting) e.currentTarget.style.background = "rgba(0,242,255,0.1)"; }}
+            >
+              <Download size={11} />
+              {exporting
+                ? (lang === "ar" ? "جاري التصدير..." : "EXPORTING...")
+                : (lang === "ar" ? "تصدير PDF" : "EXPORT PDF")}
+            </button>
+          )}
+
+          {/* Run button */}
+          <button
+            onClick={runDiagnostic}
+            disabled={scanState === "running"}
+            style={{
+              display: "flex", alignItems: "center", gap: "8px",
+              padding: "8px 18px",
+              background: scanState === "running" ? "rgba(230,0,18,0.05)" : "rgba(230,0,18,0.15)",
+              border: `1px solid ${scanState === "running" ? "rgba(230,0,18,0.3)" : "var(--launch-red)"}`,
+              borderRadius: "6px",
+              color: scanState === "running" ? "rgba(230,0,18,0.5)" : "var(--launch-red)",
+              cursor: scanState === "running" ? "not-allowed" : "pointer",
+              fontSize: isRTL ? "0.75rem" : "0.6rem",
+              letterSpacing: isRTL ? "0.02em" : "0.1em",
+              fontFamily: isRTL ? "Cairo, sans-serif" : "Orbitron, sans-serif",
+              boxShadow: scanState !== "running" ? "0 0 10px rgba(230,0,18,0.2)" : "none",
+              transition: "all 0.2s",
+            }}
+          >
+            <Zap size={13} />
+            <span data-i18n="scan_run">{t("scan_run")}</span>
+          </button>
+        </div>
       </div>
 
-      <div style={{ flex: 1, overflow: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
+      <div id="scan-export" style={{ flex: 1, overflow: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "14px", background: "#0a0a0a" }}>
 
         {/* Status + progress */}
         <PanelBox

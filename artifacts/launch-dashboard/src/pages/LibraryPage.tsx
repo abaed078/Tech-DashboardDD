@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { BookOpen, Search } from "lucide-react";
+import { BookOpen, Download, Search } from "lucide-react";
 import { useLang } from "@/context/LanguageContext";
 import { PanelBox } from "@/components/PanelBox";
+import { exportToPdf } from "@/utils/exportPdf";
 
 interface ExpertEntry {
   id: string;
@@ -53,6 +54,14 @@ export function LibraryPage() {
   const { t, lang, isRTL } = useLang();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<"all" | "sensor" | "dtc" | "protocol">("all");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    const date = new Date().toISOString().slice(0, 10);
+    await exportToPdf("library-export", `LaunchOPS_ExpertLibrary_${date}.pdf`);
+    setExporting(false);
+  };
 
   const filtered = expertData.filter(e => {
     const q = search.toLowerCase();
@@ -98,8 +107,36 @@ export function LibraryPage() {
             </div>
           </div>
         </div>
-        <div style={{ fontSize: "0.6rem", color: "var(--text-muted)", fontFamily: "Share Tech Mono, monospace" }}>
-          {filtered.length} / {expertData.length}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "0.6rem", color: "var(--text-muted)", fontFamily: "Share Tech Mono, monospace" }}>
+            {filtered.length} / {expertData.length}
+          </span>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            title={lang === "ar" ? "تصدير PDF" : "Export PDF"}
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "5px 12px",
+              background: exporting ? "rgba(0,242,255,0.05)" : "rgba(0,242,255,0.1)",
+              border: `1px solid ${exporting ? "rgba(0,242,255,0.2)" : "rgba(0,242,255,0.4)"}`,
+              borderRadius: "5px",
+              color: exporting ? "rgba(0,242,255,0.4)" : "var(--neon-blue)",
+              cursor: exporting ? "not-allowed" : "pointer",
+              fontSize: isRTL ? "0.65rem" : "0.58rem",
+              letterSpacing: isRTL ? "0.02em" : "0.08em",
+              fontFamily: isRTL ? "Cairo, sans-serif" : "Orbitron, sans-serif",
+              transition: "all 0.2s",
+              boxShadow: exporting ? "none" : "0 0 8px rgba(0,242,255,0.15)",
+            }}
+            onMouseEnter={e => { if (!exporting) e.currentTarget.style.background = "rgba(0,242,255,0.18)"; }}
+            onMouseLeave={e => { if (!exporting) e.currentTarget.style.background = "rgba(0,242,255,0.1)"; }}
+          >
+            <Download size={11} />
+            {exporting
+              ? (lang === "ar" ? "جاري التصدير..." : "EXPORTING...")
+              : (lang === "ar" ? "تصدير PDF" : "EXPORT PDF")}
+          </button>
         </div>
       </div>
 
@@ -135,7 +172,7 @@ export function LibraryPage() {
       </div>
 
       {/* Table */}
-      <div style={{ flex: 1, overflow: "auto" }}>
+      <div id="library-export" style={{ flex: 1, overflow: "auto", background: "#0a0a0a" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead style={{ position: "sticky", top: 0, background: "var(--dark-surface)", zIndex: 1 }}>
             <tr style={{ borderBottom: "1px solid var(--border-dim)" }}>
