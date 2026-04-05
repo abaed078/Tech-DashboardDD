@@ -1,0 +1,20 @@
+STRICT INSTRUCTION: You must strictly adhere to SAE International standards and the Bosch Automotive Handbook. Provide full technical depth and engineering accuracy for all simulations. Do NOT simplify the mechanical or electrical logic.
+​Role: Senior Automotive Systems Architect & Advanced 3D Visualization Expert.
+Objective: Upgrade this project into a World-Class Automotive Digital Twin, focusing on anatomical disassembly, signal logic, and professional diagnostic tools.
+​1. Instructor Mode & Advanced Views:
+​Relocate the high-fidelity 3D vehicle viewer and all advanced diagnostic capabilities exclusively to the "Instructor Mode" interface.
+​Implement three primary visualization modes:
+​A) X-Ray Mode: Semi-transparent chassis showing internal component layouts (Engine, Transmission, ECU).
+​B) Exploded View: Smoothly animate components separating apart to show disassembly.
+​C) Dissection (Cutaway) Mode: Provide detailed cross-sections of the Engine Block and key sensors to show internal structures (piston rings, internal sensor coils, magnets). Use PBR materials for realistic metal/plastic textures.
+​2. Signal Transfer & Wiring Logic:
+​Map all 12+ sensors (MAF, TPS, O2, etc.) to their exact anatomical locations within the 3D model.
+​Implement "Live Signal Flow": Visualize electrical signals as glowing, spline-based lines moving from the sensor, through the wiring harness, to the ECU.
+​If a fault is injected, show the signal line breaking or changing color to represent a failed state.
+​3. Automotive Oscilloscope Integration:
+​Add a professional Automotive Oscilloscope panel within the Instructor UI.
+​Display realistic Voltage-over-Time waveforms (e.g., Sinusoidal for CKP, 0-5V stepped for TPS) verified against engineering data.
+​4. Fault Injection System:
+​Allow the Instructor to trigger "Real-World" faults (Short to Ground, Open Circuit, Signal Out of Range).
+​The Oscilloscope and 3D Signal Flow must instantly react to these faults with 100% technical accuracy.
+​Action: Refactor the entire system to meet these high-level engineering and visual standards.

@@ -10,6 +10,7 @@ import { AlertsPage } from "@/pages/AlertsPage";
 import { ScanPage } from "@/pages/ScanPage";
 import { LibraryPage } from "@/pages/LibraryPage";
 import { VehicleScanPage } from "@/pages/VehicleScanPage";
+import { InstructorWorkstation } from "@/pages/InstructorWorkstation";
 
 export type PageId =
   | "dashboard"
@@ -165,75 +166,7 @@ function AppInner() {
   if (isInstructorMode) {
     return (
       <>
-        <div
-          style={{
-            height: "100vh",
-            background: "#0a0a0a",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            fontSize: "1.15rem",
-          }}
-        >
-          {/* Minimal top strip with exit button */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "0 18px",
-              height: "38px",
-              background: "#0c0c0c",
-              borderBottom: "1px solid #1a3a1a",
-              flexShrink: 0,
-              zIndex: 10,
-            }}
-          >
-            <span
-              style={{
-                fontSize: "0.6rem",
-                color: "#4ade80",
-                fontFamily: "Share Tech Mono, monospace",
-                letterSpacing: "0.15em",
-              }}
-            >
-              {lang === "ar" ? "▶ وضع المحاضر نشط" : "▶ INSTRUCTOR MODE ACTIVE"}
-            </span>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <span style={{ fontSize: "0.55rem", color: "#555", fontFamily: "Share Tech Mono, monospace" }}>
-                {lang === "ar" ? "[F] ملء الشاشة  [H] إخفاء الإجابات  [Esc] خروج" : "[F] Fullscreen  [H] Hide Answers  [Esc] Exit"}
-              </span>
-              <button
-                onClick={exitInstructorMode}
-                style={{
-                  background: "rgba(239,68,68,0.12)",
-                  border: "1px solid rgba(239,68,68,0.35)",
-                  color: "#ef4444",
-                  padding: "3px 12px",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "0.6rem",
-                  fontFamily: lang === "ar" ? "Cairo, sans-serif" : "Orbitron, sans-serif",
-                  letterSpacing: "0.08em",
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = "rgba(239,68,68,0.25)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = "rgba(239,68,68,0.12)";
-                }}
-              >
-                {lang === "ar" ? "خروج" : "EXIT"}
-              </button>
-            </div>
-          </div>
-
-          {/* Full-width content */}
-          <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            {renderPage()}
-          </main>
-        </div>
+        <InstructorWorkstation onExit={exitInstructorMode} lang={lang} isRTL={isRTL} />
         <Toast message={toastMsg} visible={toastVisible} />
       </>
     );
