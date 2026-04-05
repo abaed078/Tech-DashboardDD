@@ -11,6 +11,7 @@ import { ScanPage } from "@/pages/ScanPage";
 import { LibraryPage } from "@/pages/LibraryPage";
 import { VehicleScanPage } from "@/pages/VehicleScanPage";
 import { InstructorWorkstation } from "@/pages/InstructorWorkstation";
+import { CarViewerPage } from "@/pages/CarViewerPage";
 
 export type PageId =
   | "dashboard"
@@ -21,7 +22,8 @@ export type PageId =
   | "alerts"
   | "scan"
   | "lib"
-  | "vehicle";
+  | "vehicle"
+  | "carview";
 
 function LiveClock() {
   const [time, setTime] = useState(new Date());
@@ -159,6 +161,7 @@ function AppInner() {
       case "scan":      return <ScanPage />;
       case "lib":       return <LibraryPage />;
       case "vehicle":   return <VehicleScanPage />;
+      case "carview":   return <CarViewerPage />;
       default:          return <DashboardPage />;
     }
   };

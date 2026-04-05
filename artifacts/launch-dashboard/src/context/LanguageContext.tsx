@@ -68,6 +68,7 @@ export const translations = {
     lib_subtitle: "قاعدة بيانات الحساسات والأعطال الهندسية",
     // 3D Scan page
     nav_vehicle: "فحص السيارة 3D",
+    nav_carview: "عارض السيارة 3D",
     // Instructor mode
     instructor_btn: "وضع المحاضر",
     instructor_on: "✅ وضع المحاضر مفعّل — اضغط Esc للخروج",
@@ -140,6 +141,7 @@ export const translations = {
     lib_subtitle: "Sensors & Engineering Fault Database",
     // 3D Scan page
     nav_vehicle: "3D Vehicle Scan",
+    nav_carview: "3D Car Viewer",
     // Instructor mode
     instructor_btn: "Instructor Mode",
     instructor_on: "✅ Instructor Mode — Press Esc to exit",
