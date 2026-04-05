@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+
+:root {
+    --launch-red: #e60012;
+    --dark-surface: #121212;
+    --panel-bg: #1e1e1e;
+    --neon-blue: #00f2ff;
+    --success-green: #00ff88;
+    --warning-amber: #ffb800;
+    --deep-black: #000000;
+    --border-dim: #333333;
+    --border-mid: #444444;
+    --text-primary: #e0e0e0;
+    --text-muted: #888888;
+    --text-bright: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--deep-black);
+    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+#root {
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-track {
+    background: var(--dark-surface);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-mid);
+    border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--launch-red);
+}
+
+/* Neon glow utilities */
+.glow-red {
+    box-shadow: 0 0 10px rgba(230, 0, 18, 0.5), 0 0 20px rgba(230, 0, 18, 0.2);
+}
+.glow-blue {
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.5), 0 0 20px rgba(0, 242, 255, 0.2);
+}
+.glow-green {
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+.text-glow-red {
+    text-shadow: 0 0 8px rgba(230, 0, 18, 0.8);
+}
+.text-glow-blue {
+    text-shadow: 0 0 8px rgba(0, 242, 255, 0.8);
+}
+.text-glow-green {
+    text-shadow: 0 0 8px rgba(0, 255, 136, 0.8);
+}
+
+/* Scan line overlay */
+.scanlines::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Pulse animation */
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.8); }
+    50% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+}
+@keyframes data-stream {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes counter-sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+}
+
+.animate-pulse-red {
+    animation: pulse-red 2s ease-in-out infinite;
+}
+.animate-blink {
+    animation: blink 1s step-end infinite;
+}
+.animate-spin-slow {
+    animation: rotate 8s linear infinite;
+}
