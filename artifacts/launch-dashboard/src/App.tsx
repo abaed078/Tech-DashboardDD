@@ -9,6 +9,7 @@ import { TerminalPage } from "@/pages/TerminalPage";
 import { AlertsPage } from "@/pages/AlertsPage";
 import { ScanPage } from "@/pages/ScanPage";
 import { LibraryPage } from "@/pages/LibraryPage";
+import { VehicleScanPage } from "@/pages/VehicleScanPage";
 
 export type PageId =
   | "dashboard"
@@ -18,7 +19,8 @@ export type PageId =
   | "terminal"
   | "alerts"
   | "scan"
-  | "lib";
+  | "lib"
+  | "vehicle";
 
 function LiveClock() {
   const [time, setTime] = useState(new Date());
@@ -155,6 +157,7 @@ function AppInner() {
       case "alerts":    return <AlertsPage />;
       case "scan":      return <ScanPage />;
       case "lib":       return <LibraryPage />;
+      case "vehicle":   return <VehicleScanPage />;
       default:          return <DashboardPage />;
     }
   };

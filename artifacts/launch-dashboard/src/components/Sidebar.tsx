@@ -11,6 +11,7 @@ import {
   ScanLine,
   Terminal,
   Zap,
+  Car,
 } from "lucide-react";
 
 const STATUS_COLOR = {
@@ -30,6 +31,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const NAV_ITEMS = [
     { id: "dashboard" as PageId, labelKey: "nav_dash", icon: <LayoutDashboard size={15} />, status: "online" as const },
     { id: "network"   as PageId, labelKey: "nav_topo", icon: <Globe size={15} />,           status: "online" as const },
+    { id: "vehicle"   as PageId, labelKey: "nav_vehicle", icon: <Car size={15} />,            status: undefined },
     { id: "scan"      as PageId, labelKey: "nav_scan", icon: <ScanLine size={15} />,         status: undefined },
     { id: "lib"       as PageId, labelKey: "nav_lib",  icon: <BookOpen size={15} />,         status: undefined },
     { id: "security"  as PageId, labelKey: "nav_security", icon: <Lock size={15} />,         status: "warning" as const },
