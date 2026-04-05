@@ -655,50 +655,116 @@ export function CarViewerPage() {
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", background: "#05080f", overflow: "hidden" }}>
 
-      {/* Header + mode badge */}
-      <ModeBadge mode={mode} />
-
-      {/* Mode toggle */}
+      {/* ── Always visible: mode toggle ── */}
       <ModeToggle mode={mode} onToggle={toggleMode} />
 
-      {/* Three.js Canvas */}
-      <Canvas
-        shadows
-        camera={{ position: [3, 1.5, 4], fov: 40, near: 0.1, far: 100 }}
-        gl={{
-          antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: config.exposure,
-          outputColorSpace: THREE.SRGBColorSpace,
-        }}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <Scene config={config} controlsRef={controlsRef} />
-      </Canvas>
+      {/* ── User Mode: minimal placeholder (no 3D, no header) ── */}
+      {!isPresenter && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "20px",
+            zIndex: 5,
+          }}
+        >
+          <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,242,255,0.2)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <div style={{ fontSize: "0.6rem", color: "rgba(0,242,255,0.35)", fontFamily: "Orbitron, monospace", letterSpacing: "0.22em" }}>
+              3D VIEWER
+            </div>
+            <div style={{ fontSize: "0.48rem", color: "rgba(200,200,200,0.25)", fontFamily: "Share Tech Mono, monospace", letterSpacing: "0.1em" }}>
+              غير متاح في وضع المستخدم
+            </div>
+            <div style={{ fontSize: "0.44rem", color: "rgba(200,200,200,0.18)", fontFamily: "Share Tech Mono, monospace", letterSpacing: "0.08em" }}>
+              Not available in User Mode
+            </div>
+          </div>
 
-      {/* ── User Mode overlays ── */}
-      <Fade
-        visible={true}
-        style={{ position: "absolute", bottom: "28px", right: "28px", zIndex: 10 }}
-      >
-        <ControlsHint />
-      </Fade>
+          <button
+            onClick={toggleMode}
+            style={{
+              marginTop: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "9px 22px",
+              borderRadius: "7px",
+              border: "1px solid rgba(230,0,18,0.35)",
+              background: "rgba(230,0,18,0.08)",
+              color: "#e60012",
+              fontSize: "0.52rem",
+              fontFamily: "Orbitron, monospace",
+              letterSpacing: "0.15em",
+              cursor: "pointer",
+              transition: "all 0.25s",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = "rgba(230,0,18,0.16)";
+              e.currentTarget.style.boxShadow = "0 0 16px rgba(230,0,18,0.2)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = "rgba(230,0,18,0.08)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            تفعيل وضع المحاضر
+          </button>
+        </div>
+      )}
 
-      {/* ── Presenter Mode overlays ── */}
-      <Fade
-        visible={isPresenter}
-        style={{ position: "absolute", bottom: "28px", left: "28px", zIndex: 10 }}
-      >
-        <InfoPanel />
-      </Fade>
+      {/* ── Presenter Mode: full 3D viewer + all overlays ── */}
+      {isPresenter && (
+        <>
+          {/* Header + mode badge */}
+          <ModeBadge mode={mode} />
 
-      <Fade visible={isPresenter}>
-        <PresenterPanel
-          config={config}
-          onChange={patchConfig}
-          onResetCamera={resetCamera}
-        />
-      </Fade>
+          {/* Three.js Canvas */}
+          <Canvas
+            shadows
+            camera={{ position: [3, 1.5, 4], fov: 40, near: 0.1, far: 100 }}
+            gl={{
+              antialias: true,
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: config.exposure,
+              outputColorSpace: THREE.SRGBColorSpace,
+            }}
+            style={{ width: "100%", height: "100%" }}
+          >
+            <Scene config={config} controlsRef={controlsRef} />
+          </Canvas>
+
+          {/* Controls hint */}
+          <div style={{ position: "absolute", bottom: "28px", right: "28px", zIndex: 10 }}>
+            <ControlsHint />
+          </div>
+
+          {/* Vehicle specs */}
+          <div style={{ position: "absolute", bottom: "28px", left: "28px", zIndex: 10 }}>
+            <InfoPanel />
+          </div>
+
+          <PresenterPanel
+            config={config}
+            onChange={patchConfig}
+            onResetCamera={resetCamera}
+          />
+        </>
+      )}
+
     </div>
   );
 }
