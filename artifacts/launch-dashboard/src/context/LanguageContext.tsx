@@ -66,6 +66,12 @@ export const translations = {
     // Library page
     lib_search: "بحث في قاعدة البيانات...",
     lib_subtitle: "قاعدة بيانات الحساسات والأعطال الهندسية",
+    // Instructor mode
+    instructor_btn: "وضع المحاضر",
+    instructor_on: "✅ وضع المحاضر مفعّل — اضغط Esc للخروج",
+    instructor_off: "وضع المحاضر متوقف",
+    answers_hidden: "الإجابات مخفية",
+    answers_visible: "الإجابات ظاهرة",
   },
   en: {
     nav_dash: "Dashboard",
@@ -130,6 +136,12 @@ export const translations = {
     // Library page
     lib_search: "Search database...",
     lib_subtitle: "Sensors & Engineering Fault Database",
+    // Instructor mode
+    instructor_btn: "Instructor Mode",
+    instructor_on: "✅ Instructor Mode — Press Esc to exit",
+    instructor_off: "Instructor Mode deactivated",
+    answers_hidden: "Answers hidden",
+    answers_visible: "Answers visible",
   },
 } as const;
 

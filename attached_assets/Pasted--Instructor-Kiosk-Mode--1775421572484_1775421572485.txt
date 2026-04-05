@@ -1,0 +1,126 @@
+// ============================================
+// وضع المحاضر (Instructor / Kiosk Mode) – كود متكامل
+// ============================================
+(function() {
+    // 1. إضافة الزر ديناميكياً (إذا لم يكن موجوداً)
+    function addInstructorButton() {
+        if (document.getElementById('instructorModeBtn')) return;
+        const btn = document.createElement('button');
+        btn.id = 'instructorModeBtn';
+        btn.className = 'btn-instructor';
+        btn.innerHTML = '👨‍🏫 وضع المحاضر';
+        btn.style.cssText = `
+            background: linear-gradient(135deg, #2c3e66, #1a2a4a);
+            border: none; color: white; padding: 8px 16px;
+            border-radius: 30px; cursor: pointer; margin: 5px;
+            transition: 0.2s; font-family: inherit;
+        `;
+        btn.onmouseover = () => btn.style.transform = 'scale(1.02)';
+        btn.onmouseout = () => btn.style.transform = 'scale(1)';
+        
+        // محاولة إيجاد مكان مناسب للزر
+        const container = document.querySelector('.action-buttons') || document.querySelector('.scan-action')?.parentNode;
+        if (container) container.appendChild(btn);
+        else document.body.appendChild(btn); // كحل أخير
+    }
+    
+    // 2. إضافة التنسيقات (CSS)
+    function addStyles() {
+        if (document.getElementById('instructor-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'instructor-styles';
+        style.textContent = `
+            .instructor-mode {
+                font-size: 1.2rem;
+                background: #0a0a0a;
+            }
+            .instructor-mode .sidebar, .instructor-mode .header {
+                display: none !important;
+            }
+            .instructor-mode .main-content {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 20px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // 3. منطق وضع المحاضر
+    let isInstructorMode = false;
+    let originalSidebarDisplay = "";
+    let originalHeaderDisplay = "";
+    
+    function showToast(msg) {
+        let toast = document.getElementById('custom-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'custom-toast';
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px; background: #333;
+                color: white; padding: 10px 20px; border-radius: 8px;
+                z-index: 9999; font-size: 14px; transition: 0.3s;
+                opacity: 0; pointer-events: none;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 3000);
+    }
+    
+    function toggleInstructorMode() {
+        isInstructorMode = !isInstructorMode;
+        const sidebar = document.querySelector('.sidebar');
+        const header = document.querySelector('.header');
+        const content = document.querySelector('.main-content');
+        
+        if (isInstructorMode) {
+            if (sidebar) { originalSidebarDisplay = sidebar.style.display; sidebar.style.display = 'none'; }
+            if (header) { originalHeaderDisplay = header.style.display; header.style.display = 'none'; }
+            if (content) content.style.width = '100%';
+            document.body.classList.add('instructor-mode');
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
+            showToast('✅ وضع المحاضر مفعل - اضغط Esc للخروج');
+        } else {
+            if (sidebar) sidebar.style.display = originalSidebarDisplay;
+            if (header) header.style.display = originalHeaderDisplay;
+            if (content) content.style.width = '';
+            document.body.classList.remove('instructor-mode');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            showToast('وضع المحاضر متوقف');
+        }
+    }
+    
+    // 4. اختصارات لوحة المفاتيح
+    function handleKeyboard(e) {
+        if (e.key === 'F' || e.key === 'f') {
+            e.preventDefault();
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+        if (e.key === 'H' || e.key === 'h') {
+            e.preventDefault();
+            const texts = document.querySelectorAll('.anatomy-description, .diagnosis-text');
+            texts.forEach(el => {
+                if (el.style.display === 'none') el.style.display = '';
+                else el.style.display = 'none';
+            });
+            showToast(texts[0]?.style.display === 'none' ? 'الإجابات مخفية' : 'الإجابات ظاهرة');
+        }
+        if (e.key === 'Escape' && isInstructorMode) toggleInstructorMode();
+    }
+    
+    // 5. التهيئة عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+        addStyles();
+        addInstructorButton();
+        const btn = document.getElementById('instructorModeBtn');
+        if (btn) btn.onclick = toggleInstructorMode;
+        document.addEventListener('keydown', handleKeyboard);
+    });
+})();
